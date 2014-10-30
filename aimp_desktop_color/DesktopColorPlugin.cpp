@@ -4,10 +4,14 @@
 #include "utils.h"
 
 HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
-    aimpCore = core;
-    aimpCore->AddRef();
-    ChangeCurrentSkinColor();
-    return S_OK;
+    if (IsWindowsVistaOrGreater()) {
+        aimpCore = core;
+        aimpCore->AddRef();
+
+        ChangeCurrentSkinColor();
+        return S_OK;
+    }
+    return E_ABORT;
 }
 
 HRESULT WINAPI DesktopColorPlugin::Finalize() {
