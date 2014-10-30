@@ -19,11 +19,13 @@ HRESULT WINAPI DesktopColorPlugin::Finalize() {
 PWCHAR WINAPI DesktopColorPlugin::InfoGet(int index) {
     switch (index) {
         case AIMP_PLUGIN_INFO_NAME:
-            return L"Cpp Test";
+            return L"Desktop Color";
         case AIMP_PLUGIN_INFO_AUTHOR:
             return L"esprit";
         case AIMP_PLUGIN_INFO_SHORT_DESCRIPTION:
-            return L"OK";
+            return L"Set the player color scheme according to desktop color.";
+        case AIMP_PLUGIN_INFO_FULL_DESCRIPTION:
+            return L"Works only on Windows Vista and above.";
         default:
             return nullptr;
     }
