@@ -14,6 +14,7 @@ public:
     virtual void WINAPI SystemNotification(int NotifyID, IUnknown* Data);
 private:
     void ChangeCurrentSkinColor();
+    bool IsServiceAvailable(IUnknown* provider, REFIID serviceIid);
 
     IAIMPCore* aimpCore;
 };

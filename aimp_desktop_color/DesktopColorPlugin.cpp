@@ -4,7 +4,8 @@
 #include "utils.h"
 
 HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
-    if (IsWindowsVistaOrGreater()) {
+    if (IsWindowsVistaOrGreater() &&
+        IsServiceAvailable(core, IID_IAIMPServiceSkinsManager)) {
         aimpCore = core;
         aimpCore->AddRef();
 
@@ -72,4 +73,13 @@ void DesktopColorPlugin::ChangeCurrentSkinColor() {
             skinManager->Release();
         }
     }
+}
+
+bool DesktopColorPlugin::IsServiceAvailable(IUnknown* provider, REFIID serviceIid) {
+    IUnknown* dummyService;
+    if (SUCCEEDED(provider->QueryInterface(serviceIid, (void**)&dummyService))) {
+        dummyService->Release();
+        return true;
+    }
+    return false;
 }
