@@ -1,5 +1,8 @@
 #include "stdafx.h"
+
 #include "apiSkins.h"
+#include "apiMenu.h"
+
 #include "DesktopColorPlugin.h"
 #include "utils.h"
 
@@ -48,7 +51,7 @@ void DesktopColorPlugin::ChangeCurrentSkinColor() {
     int dwmR = 0, dwmG = 0, dwmB = 0;
     if (GetDwmColor(&dwmR, &dwmG, &dwmB) == S_OK) {
         IAIMPServiceSkinsManager* skinManager;
-        if (SUCCEEDED(aimpCore->QueryInterface(IID_IAIMPServiceSkinsManager, (void**)&skinManager))) {
+        if (GetService(IID_IAIMPServiceSkinsManager, (void**)&skinManager)) {
             IAIMPPropertyList* skinPropertyList;
             if (SUCCEEDED(skinManager->QueryInterface(IID_IAIMPPropertyList, (void**)&skinPropertyList))) {
                 int oldH = 0, oldS = 0, oldL = 0;
@@ -75,6 +78,14 @@ void DesktopColorPlugin::ChangeCurrentSkinColor() {
     }
 }
 
+bool DesktopColorPlugin::CreateObject(REFIID iid, void** object) {
+    return SUCCEEDED(aimpCore->CreateObject(iid, object));
+}
+
+bool DesktopColorPlugin::GetService(REFIID iid, void** service) {
+    return SUCCEEDED(aimpCore->QueryInterface(iid, service));
+}
+
 bool DesktopColorPlugin::IsServiceAvailable(IUnknown* provider, REFIID serviceIid) {
     IUnknown* dummyService;
     if (SUCCEEDED(provider->QueryInterface(serviceIid, (void**)&dummyService))) {
@@ -82,4 +93,11 @@ bool DesktopColorPlugin::IsServiceAvailable(IUnknown* provider, REFIID serviceIi
         return true;
     }
     return false;
+}
+
+IAIMPString* DesktopColorPlugin::MakeString(PWCHAR strSeq) {
+    IAIMPString* string;
+    CreateObject(IID_IAIMPString, (void**)&string);
+    string->SetData(strSeq, wcslen(strSeq));
+    return string;
 }
