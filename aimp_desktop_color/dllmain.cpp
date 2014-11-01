@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "apiPlugin.h"
 #include "DesktopColorPlugin.h"
 
 bool APIENTRY DllMain(HMODULE hModule, DWORD  ulReasonForCall, LPVOID lpReserved) {
