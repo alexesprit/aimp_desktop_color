@@ -50,30 +50,26 @@ void WINAPI DesktopColorPlugin::SystemNotification(int NotifyID, IUnknown* Data)
 void DesktopColorPlugin::ChangeCurrentSkinColor() {
     int dwmR = 0, dwmG = 0, dwmB = 0;
     if (GetDwmColor(&dwmR, &dwmG, &dwmB) == S_OK) {
-        IAIMPServiceSkinsManager* skinManager;
+        IAIMPServiceSkinsManagerPtr skinManager;
         if (GetService(IID_IAIMPServiceSkinsManager, (void**)&skinManager)) {
-            IAIMPPropertyList* skinPropertyList;
-            if (SUCCEEDED(skinManager->QueryInterface(IID_IAIMPPropertyList, (void**)&skinPropertyList))) {
+            IAIMPSkinInfoPtr skinInfo;
+            if (SUCCEEDED(skinManager->QueryInterface(IID_IAIMPPropertyList, (void**)&skinInfo))) {
                 int oldH = 0, oldS = 0, oldL = 0;
-                skinPropertyList->GetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE, &oldH);
-                skinPropertyList->GetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE_INTENSITY, &oldS);
+                skinInfo->GetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE, &oldH);
+                skinInfo->GetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE_INTENSITY, &oldS);
 
                 byte dwmH = 0, dwmS = 0, dwmL = 0;
                 skinManager->RGBToHSL(dwmR, dwmG, dwmB, &dwmH, &dwmS, &dwmL);
                 dwmS = ByteToPercent(dwmS);
 
                 if (oldS != dwmS || oldH != dwmH) {
-                    skinPropertyList->BeginUpdate();
-                    skinPropertyList->SetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE, dwmH);
-                    skinPropertyList->SetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE_INTENSITY, dwmS);
-                    skinPropertyList->EndUpdate();
-                    skinManager->Select(NULL);
+                    skinInfo->BeginUpdate();
+                    skinInfo->SetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE, dwmH);
+                    skinInfo->SetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE_INTENSITY, dwmS);
+                    skinInfo->EndUpdate();
+                    skinManager->Select(nullptr);
                 }
-
-                skinPropertyList->Release();
             }
-
-            skinManager->Release();
         }
     }
 }

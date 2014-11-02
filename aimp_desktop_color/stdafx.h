@@ -13,5 +13,4 @@
 #include <VersionHelpers.h>
 #include "dwmapi.h"
 
-
-// TODO: reference additional headers your program requires here
+#include "comtypes.h"
