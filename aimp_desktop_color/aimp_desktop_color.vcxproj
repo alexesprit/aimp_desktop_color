@@ -106,6 +106,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
+    <None Include="Langs\english.lng" />
+    <None Include="Langs\russian.lng" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

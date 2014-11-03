@@ -25,6 +25,9 @@ private:
     bool IsServiceAvailable(IUnknown* provider, REFIID serviceIid);
 
     IAIMPString* MakeString(PWCHAR strSeq);
+    HRESULT MakeString(PWCHAR strSeq, IAIMPString** string);
+
+    HRESULT LangLoadString(PWCHAR keyPath, IAIMPString** out);
 
     IAIMPCore* aimpCore;
 };

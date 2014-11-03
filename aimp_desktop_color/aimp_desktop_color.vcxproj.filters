@@ -52,5 +52,11 @@
     <None Include="exports.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Langs\english.lng">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Langs\russian.lng">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

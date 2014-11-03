@@ -2,10 +2,13 @@
 
 #include "apiSkins.h"
 #include "apiMenu.h"
+#include "apiMUI.h"
 
 #include "DesktopColorPlugin.h"
 #include "MenuItemEvent.h"
 #include "utils.h"
+
+#define LNG_UPDATE_COLOR_SCHEME L"DesktopColor\\L1"
 
 HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
     if (IsWindowsVistaOrGreater() &&
@@ -88,7 +91,8 @@ void DesktopColorPlugin::AddItemToUtilsMenu() {
             IAIMPMenuItemPtr parentMenuItem;
             if (SUCCEEDED(menuManager->GetBuiltIn(AIMP_MENUID_PLAYER_MAIN_OPEN, &parentMenuItem))) {
                 auto menuId = MakeString(L"{db2dcb78-274a-4055-9bc2-01f89558b567}");
-                auto menuName = MakeString(L"Update color scheme");
+                IAIMPString* menuName;
+                LangLoadString(LNG_UPDATE_COLOR_SCHEME, &menuName);
 
                 auto callback = std::bind(&DesktopColorPlugin::OnMenuItemPressed, this);
                 MenuItemEvent* itemEvent = new MenuItemEvent(callback);
@@ -132,4 +136,20 @@ IAIMPString* DesktopColorPlugin::MakeString(PWCHAR strSeq) {
     CreateObject(IID_IAIMPString, (void**)&string);
     string->SetData(strSeq, wcslen(strSeq));
     return string;
+}
+
+HRESULT DesktopColorPlugin::MakeString(PWCHAR strSeq, IAIMPString** out) {
+    auto result = CreateObject(IID_IAIMPString, (void**)out);
+    if (result) {
+        return (*out)->SetData(strSeq, wcslen(strSeq));
+    }
+    return result;
+}
+
+HRESULT DesktopColorPlugin::LangLoadString(PWCHAR keyPath, IAIMPString** out) {
+    IAIMPServiceMUIPtr muiService;
+    GetService(IID_IAIMPServiceMUI, (void**)&muiService); 
+    IAIMPStringPtr sKeyPath;
+    MakeString(keyPath, &sKeyPath);
+    return muiService->GetValue(sKeyPath, out);
 }
