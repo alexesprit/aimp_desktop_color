@@ -82,6 +82,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DesktopColorPlugin.h" />
+    <ClInclude Include="CoreMessageListener.h" />
     <ClInclude Include="MenuItemEvent.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="stdafx.h" />
@@ -98,6 +99,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MenuItemEvent.cpp" />
+    <ClCompile Include="CoreMessageListener.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -17,3 +17,4 @@
 #include "comtypes.h"
 
 typedef std::function<void()> EventCallback;
+typedef std::function<bool(DWORD, int, void*)> CoreMessageCallback;

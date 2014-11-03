@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoreMessageListener.h"
 #include "IUnknownImpl.h"
 #include "apiPlugin.h"
 #include "apiMenu.h"
@@ -16,13 +17,20 @@ public:
     virtual void WINAPI SystemNotification(int NotifyID, IUnknown* Data);
 
     void OnMenuItemPressed();
+    bool OnCoreMessage(DWORD message, int wParam, void* lParam);
 private:
     bool ChangeCurrentSkinColor();
     void AddItemToUtilsMenu();
+    void UpdateMenuItemNames();
+
+    void RegisterMessageListener();
+    void UnregisterMessageListener();
 
     bool CreateObject(REFIID iid, void** object);
     bool GetService(REFIID iid, void** service);
     bool IsServiceAvailable(IUnknown* provider, REFIID serviceIid);
+
+    HRESULT UpdateMenuItemName(IAIMPString* menuId, IAIMPString* newName);
 
     IAIMPString* MakeString(PWCHAR strSeq);
     HRESULT MakeString(PWCHAR strSeq, IAIMPString** string);
@@ -30,5 +38,6 @@ private:
     HRESULT LangLoadString(PWCHAR keyPath, IAIMPString** out);
 
     IAIMPCore* aimpCore;
+    CoreMessageListener* coreMessageListener;
 };
 

@@ -30,6 +30,9 @@
     <ClInclude Include="MenuItemEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CoreMessageListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MenuItemEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreMessageListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

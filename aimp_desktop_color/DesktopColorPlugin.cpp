@@ -8,6 +8,8 @@
 #include "MenuItemEvent.h"
 #include "utils.h"
 
+#define MENU_CHANGE_COLOR_SCHEME_ID L"{db2dcb78-274a-4055-9bc2-01f89558b567}"
+
 #define LNG_UPDATE_COLOR_SCHEME L"DesktopColor\\L1"
 #define LNG_IS_ALREADY_UPDATED L"DesktopColor\\L2"
 
@@ -17,6 +19,7 @@ HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
         aimpCore = core;
         aimpCore->AddRef();
 
+        RegisterMessageListener();
         AddItemToUtilsMenu();
         ChangeCurrentSkinColor();
         return S_OK;
@@ -25,6 +28,8 @@ HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
 }
 
 HRESULT WINAPI DesktopColorPlugin::Finalize() {
+    UnregisterMessageListener();
+
     aimpCore->Release();
     aimpCore = nullptr;
     return S_OK;
@@ -61,6 +66,15 @@ void DesktopColorPlugin::OnMenuItemPressed() {
     }
 }
 
+bool DesktopColorPlugin::OnCoreMessage(DWORD message, int wParam, void* lParam) {
+    switch (message) {
+        case AIMP_MSG_EVENT_LANGUAGE:
+            UpdateMenuItemNames();
+            break;
+    }
+    return false;
+}
+
 bool DesktopColorPlugin::ChangeCurrentSkinColor() {
     int dwmR = 0, dwmG = 0, dwmB = 0;
     if (GetDwmColor(&dwmR, &dwmG, &dwmB) == S_OK) {
@@ -94,10 +108,10 @@ void DesktopColorPlugin::AddItemToUtilsMenu() {
     IAIMPMenuItemPtr menuItem;
     if (CreateObject(IID_IAIMPMenuItem, (void**)&menuItem)) {
         IAIMPServiceMenuManagerPtr menuManager;
-        if (SUCCEEDED(aimpCore->QueryInterface(IID_IAIMPServiceMenuManager, (void**)&menuManager))) {
+        if (GetService(IID_IAIMPServiceMenuManager, (void**)&menuManager)) {
             IAIMPMenuItemPtr parentMenuItem;
             if (SUCCEEDED(menuManager->GetBuiltIn(AIMP_MENUID_PLAYER_MAIN_FUNCTIONS, &parentMenuItem))) {
-                auto menuId = MakeString(L"{db2dcb78-274a-4055-9bc2-01f89558b567}");
+                auto menuId = MakeString(MENU_CHANGE_COLOR_SCHEME_ID);
                 IAIMPString* menuName;
                 LangLoadString(LNG_UPDATE_COLOR_SCHEME, &menuName);
 
@@ -121,6 +135,33 @@ void DesktopColorPlugin::AddItemToUtilsMenu() {
     }
 }
 
+void DesktopColorPlugin::UpdateMenuItemNames() {
+    IAIMPStringPtr menuId;
+    IAIMPStringPtr menuName;
+    MakeString(MENU_CHANGE_COLOR_SCHEME_ID, &menuId);
+    LangLoadString(LNG_UPDATE_COLOR_SCHEME, &menuName);
+    UpdateMenuItemName(menuId, menuName);
+}
+
+void DesktopColorPlugin::RegisterMessageListener() {
+    using namespace std::placeholders;
+
+    IAIMPServiceMessageDispatcherPtr messageDispatcher;
+    if (GetService(IID_IAIMPServiceMessageDispatcher, (void**)&messageDispatcher)) {
+        auto coreMessageCallback = std::bind(&DesktopColorPlugin::OnCoreMessage, this, _1, _2, _3);
+        coreMessageListener = new CoreMessageListener(coreMessageCallback);
+        coreMessageListener->AddRef();
+        messageDispatcher->Hook(coreMessageListener);
+    }
+}
+
+void DesktopColorPlugin::UnregisterMessageListener() {
+    IAIMPServiceMessageDispatcherPtr messageDispatcher;
+    if (GetService(IID_IAIMPServiceMessageDispatcher, (void**)&messageDispatcher)) {
+        messageDispatcher->Unhook(coreMessageListener);
+    }
+}
+
 bool DesktopColorPlugin::CreateObject(REFIID iid, void** object) {
     return SUCCEEDED(aimpCore->CreateObject(iid, object));
 }
@@ -136,6 +177,17 @@ bool DesktopColorPlugin::IsServiceAvailable(IUnknown* provider, REFIID serviceIi
         return true;
     }
     return false;
+}
+
+HRESULT DesktopColorPlugin::UpdateMenuItemName(IAIMPString* menuId, IAIMPString* newName) {
+    IAIMPServiceMenuManagerPtr menuManager;
+    if (GetService(IID_IAIMPServiceMenuManager, (void**)&menuManager)) {
+        IAIMPMenuItemPtr menuItem;
+        if (SUCCEEDED(menuManager->GetByID(menuId, &menuItem))) {
+            return menuItem->SetValueAsObject(AIMP_MENUITEM_PROPID_NAME, newName);
+        }
+    }
+    return E_UNEXPECTED;
 }
 
 IAIMPString* DesktopColorPlugin::MakeString(PWCHAR strSeq) {
