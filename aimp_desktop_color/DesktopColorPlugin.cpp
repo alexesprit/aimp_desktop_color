@@ -96,7 +96,7 @@ void DesktopColorPlugin::AddItemToUtilsMenu() {
         IAIMPServiceMenuManagerPtr menuManager;
         if (SUCCEEDED(aimpCore->QueryInterface(IID_IAIMPServiceMenuManager, (void**)&menuManager))) {
             IAIMPMenuItemPtr parentMenuItem;
-            if (SUCCEEDED(menuManager->GetBuiltIn(AIMP_MENUID_PLAYER_MAIN_OPEN, &parentMenuItem))) {
+            if (SUCCEEDED(menuManager->GetBuiltIn(AIMP_MENUID_PLAYER_MAIN_FUNCTIONS, &parentMenuItem))) {
                 auto menuId = MakeString(L"{db2dcb78-274a-4055-9bc2-01f89558b567}");
                 IAIMPString* menuName;
                 LangLoadString(LNG_UPDATE_COLOR_SCHEME, &menuName);
