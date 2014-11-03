@@ -9,6 +9,7 @@
 #include "utils.h"
 
 #define LNG_UPDATE_COLOR_SCHEME L"DesktopColor\\L1"
+#define LNG_IS_ALREADY_UPDATED L"DesktopColor\\L2"
 
 HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
     if (IsWindowsVistaOrGreater() &&
@@ -53,10 +54,14 @@ void WINAPI DesktopColorPlugin::SystemNotification(int NotifyID, IUnknown* Data)
 }
 
 void DesktopColorPlugin::OnMenuItemPressed() {
-    ChangeCurrentSkinColor();
+    if (!ChangeCurrentSkinColor()) {
+        IAIMPStringPtr message;
+        LangLoadString(LNG_IS_ALREADY_UPDATED, &message);
+        MessageBox(0, message->GetData(), L"DesktopColor", MB_OK);
+    }
 }
 
-void DesktopColorPlugin::ChangeCurrentSkinColor() {
+bool DesktopColorPlugin::ChangeCurrentSkinColor() {
     int dwmR = 0, dwmG = 0, dwmB = 0;
     if (GetDwmColor(&dwmR, &dwmG, &dwmB) == S_OK) {
         IAIMPServiceSkinsManagerPtr skinManager;
@@ -77,10 +82,12 @@ void DesktopColorPlugin::ChangeCurrentSkinColor() {
                     skinInfo->SetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE_INTENSITY, dwmS);
                     skinInfo->EndUpdate();
                     skinManager->Select(nullptr);
+                    return true;
                 }
             }
         }
     }
+    return false;
 }
 
 void DesktopColorPlugin::AddItemToUtilsMenu() {

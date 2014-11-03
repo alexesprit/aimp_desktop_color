@@ -17,7 +17,7 @@ public:
 
     void OnMenuItemPressed();
 private:
-    void ChangeCurrentSkinColor();
+    bool ChangeCurrentSkinColor();
     void AddItemToUtilsMenu();
 
     bool CreateObject(REFIID iid, void** object);
