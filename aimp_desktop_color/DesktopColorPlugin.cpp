@@ -4,6 +4,7 @@
 #include "apiMenu.h"
 
 #include "DesktopColorPlugin.h"
+#include "MenuItemEvent.h"
 #include "utils.h"
 
 HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
@@ -12,6 +13,7 @@ HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
         aimpCore = core;
         aimpCore->AddRef();
 
+        AddItemToUtilsMenu();
         ChangeCurrentSkinColor();
         return S_OK;
     }
@@ -47,6 +49,10 @@ void WINAPI DesktopColorPlugin::SystemNotification(int NotifyID, IUnknown* Data)
 
 }
 
+void DesktopColorPlugin::OnMenuItemPressed() {
+    ChangeCurrentSkinColor();
+}
+
 void DesktopColorPlugin::ChangeCurrentSkinColor() {
     int dwmR = 0, dwmG = 0, dwmB = 0;
     if (GetDwmColor(&dwmR, &dwmG, &dwmB) == S_OK) {
@@ -69,6 +75,36 @@ void DesktopColorPlugin::ChangeCurrentSkinColor() {
                     skinInfo->EndUpdate();
                     skinManager->Select(nullptr);
                 }
+            }
+        }
+    }
+}
+
+void DesktopColorPlugin::AddItemToUtilsMenu() {
+    IAIMPMenuItemPtr menuItem;
+    if (CreateObject(IID_IAIMPMenuItem, (void**)&menuItem)) {
+        IAIMPServiceMenuManagerPtr menuManager;
+        if (SUCCEEDED(aimpCore->QueryInterface(IID_IAIMPServiceMenuManager, (void**)&menuManager))) {
+            IAIMPMenuItemPtr parentMenuItem;
+            if (SUCCEEDED(menuManager->GetBuiltIn(AIMP_MENUID_PLAYER_MAIN_OPEN, &parentMenuItem))) {
+                auto menuId = MakeString(L"{db2dcb78-274a-4055-9bc2-01f89558b567}");
+                auto menuName = MakeString(L"Update color scheme");
+
+                auto callback = std::bind(&DesktopColorPlugin::OnMenuItemPressed, this);
+                MenuItemEvent* itemEvent = new MenuItemEvent(callback);
+                itemEvent->AddRef();
+
+                menuItem->SetValueAsObject(AIMP_MENUITEM_PROPID_ID, menuId);
+                menuItem->SetValueAsObject(AIMP_MENUITEM_PROPID_NAME, menuName);
+                menuItem->SetValueAsObject(AIMP_MENUITEM_PROPID_PARENT, parentMenuItem);
+                menuItem->SetValueAsObject(AIMP_MENUITEM_PROPID_EVENT, itemEvent);
+                menuItem->SetValueAsInt32(AIMP_MENUITEM_PROPID_STYLE, AIMP_MENUITEM_STYLE_NORMAL);
+
+                aimpCore->RegisterExtension(IID_IAIMPServiceMenuManager, menuItem);
+
+                itemEvent->Release();
+                menuName->Release();
+                menuId->Release();
             }
         }
     }

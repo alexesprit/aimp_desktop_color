@@ -11,6 +11,9 @@
 // Windows Header Files:
 #include <windows.h>
 #include <VersionHelpers.h>
+#include <functional>
 #include "dwmapi.h"
 
 #include "comtypes.h"
+
+typedef std::function<void()> EventCallback;
