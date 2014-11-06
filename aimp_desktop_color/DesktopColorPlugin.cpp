@@ -111,8 +111,8 @@ void DesktopColorPlugin::AddItemToUtilsMenu() {
         if (GetService(IID_IAIMPServiceMenuManager, (void**)&menuManager)) {
             IAIMPMenuItemPtr parentMenuItem;
             if (SUCCEEDED(menuManager->GetBuiltIn(AIMP_MENUID_PLAYER_MAIN_FUNCTIONS, &parentMenuItem))) {
-                auto menuId = MakeString(MENU_CHANGE_COLOR_SCHEME_ID);
-                IAIMPString* menuName;
+                IAIMPStringPtr menuName, menuId;
+                MakeString(MENU_CHANGE_COLOR_SCHEME_ID, &menuId);
                 LangLoadString(LNG_UPDATE_COLOR_SCHEME, &menuName);
 
                 auto callback = std::bind(&DesktopColorPlugin::OnMenuItemPressed, this);
@@ -128,8 +128,6 @@ void DesktopColorPlugin::AddItemToUtilsMenu() {
                 aimpCore->RegisterExtension(IID_IAIMPServiceMenuManager, menuItem);
 
                 itemEvent->Release();
-                menuName->Release();
-                menuId->Release();
             }
         }
     }
