@@ -6,12 +6,8 @@
 
 #include "DesktopColorPlugin.h"
 #include "MenuItemEvent.h"
+#include "PluginData.h"
 #include "utils.h"
-
-#define MENU_CHANGE_COLOR_SCHEME_ID L"{db2dcb78-274a-4055-9bc2-01f89558b567}"
-
-#define LNG_UPDATE_COLOR_SCHEME L"DesktopColor\\L1"
-#define LNG_IS_ALREADY_UPDATED L"DesktopColor\\L2"
 
 HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
     if (IsWindowsVistaOrGreater() &&
@@ -38,13 +34,13 @@ HRESULT WINAPI DesktopColorPlugin::Finalize() {
 PWCHAR WINAPI DesktopColorPlugin::InfoGet(int index) {
     switch (index) {
         case AIMP_PLUGIN_INFO_NAME:
-            return L"Desktop Color";
+            return PLUGIN_NAME;
         case AIMP_PLUGIN_INFO_AUTHOR:
-            return L"esprit";
+            return PLUGIN_AUTHOR;
         case AIMP_PLUGIN_INFO_SHORT_DESCRIPTION:
-            return L"Set the player color scheme according to desktop color.";
+            return PLUGIN_SHORT_DESC;
         case AIMP_PLUGIN_INFO_FULL_DESCRIPTION:
-            return L"Works only on Windows Vista and above.";
+            return PLUGIN_FULL_DESC;
         default:
             return nullptr;
     }
@@ -62,7 +58,7 @@ void DesktopColorPlugin::OnMenuItemPressed() {
     if (!ChangeCurrentSkinColor()) {
         IAIMPStringPtr message;
         LangLoadString(LNG_IS_ALREADY_UPDATED, &message);
-        MessageBox(0, message->GetData(), L"DesktopColor", MB_OK);
+        MessageBox(0, message->GetData(), PLUGIN_NAME, MB_OK);
     }
 }
 
@@ -186,13 +182,6 @@ HRESULT DesktopColorPlugin::UpdateMenuItemName(IAIMPString* menuId, IAIMPString*
         }
     }
     return E_UNEXPECTED;
-}
-
-IAIMPString* DesktopColorPlugin::MakeString(PWCHAR strSeq) {
-    IAIMPString* string;
-    CreateObject(IID_IAIMPString, (void**)&string);
-    string->SetData(strSeq, wcslen(strSeq));
-    return string;
 }
 
 HRESULT DesktopColorPlugin::MakeString(PWCHAR strSeq, IAIMPString** out) {
