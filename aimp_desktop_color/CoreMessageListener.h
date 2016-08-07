@@ -6,7 +6,6 @@
 class CoreMessageListener : public IUnknownImpl<IAIMPMessageHook> {
 public:
     CoreMessageListener(CoreMessageCallback callback);
-    ~CoreMessageListener();
     virtual void WINAPI CoreMessage(DWORD message, int wparam, void *lparam, HRESULT *result);
 private:
     CoreMessageCallback callback;
