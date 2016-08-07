@@ -17,7 +17,6 @@ HRESULT WINAPI DesktopColorPlugin::Initialize(IAIMPCore* core) {
 
         RegisterMessageListener();
         AddItemToUtilsMenu();
-        ChangeCurrentSkinColor();
         return S_OK;
     }
     return E_ABORT;
@@ -67,18 +66,21 @@ bool DesktopColorPlugin::OnCoreMessage(DWORD message, int wParam, void* lParam) 
         case AIMP_MSG_EVENT_LANGUAGE:
             UpdateMenuItemNames();
             break;
+        case AIMP_MSG_EVENT_LOADED:
+            ChangeCurrentSkinColor();
+            break;
     }
     return false;
 }
 
 bool DesktopColorPlugin::ChangeCurrentSkinColor() {
     int dwmR = 0, dwmG = 0, dwmB = 0;
-    if (GetDwmColor(&dwmR, &dwmG, &dwmB) == S_OK) {
+    if (SUCCEEDED(GetDwmColor(&dwmR, &dwmG, &dwmB))) {
         IAIMPServiceSkinsManagerPtr skinManager;
         if (GetService(IID_IAIMPServiceSkinsManager, (void**)&skinManager)) {
             IAIMPSkinInfoPtr skinInfo;
             if (SUCCEEDED(skinManager->QueryInterface(IID_IAIMPPropertyList, (void**)&skinInfo))) {
-                int oldH = 0, oldS = 0, oldL = 0;
+                int oldH = 0, oldS = 0;
                 skinInfo->GetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE, &oldH);
                 skinInfo->GetValueAsInt32(AIMP_SERVICE_SKINSMAN_PROPID_HUE_INTENSITY, &oldS);
 
